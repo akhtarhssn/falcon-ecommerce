@@ -2,11 +2,11 @@
 
 import { SearchIcon, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
+import { useSelector } from 'react-redux';
+import Link from 'next/link';
 
 import { cn } from '@/lib/utils';
 import MaxWidthContainer from '../max-width-container';
-import Link from 'next/link';
-import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 
 type NavigationBarProps = {
@@ -28,7 +28,7 @@ const NavigationBar = ({ className }: NavigationBarProps) => {
                     </Link>
 
                     {/* SEARCH BAR */}
-                    <div className="flex items-center max-w-60 sm:w-full">
+                    <div className="flex items-center w-60 max-w-[760px] sm:w-full">
                         <input
                             type="text"
                             placeholder="Search for anything..."

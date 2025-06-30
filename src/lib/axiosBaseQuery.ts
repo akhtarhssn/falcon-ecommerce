@@ -1,37 +1,18 @@
-import { BaseQueryFn } from '@reduxjs/toolkit/query';
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import axios from 'axios';
 
-export const axiosBaseQuery = ({
-    baseUrl,
-}: {
-    baseUrl: string;
-}): BaseQueryFn<
-    {
-        url: string;
-        method?: AxiosRequestConfig['method'];
-        data?: AxiosRequestConfig['data'];
-        params?: AxiosRequestConfig['params'];
-    },
-    unknown,
-    unknown
-> => async ({ url, method = 'GET', data, params }) => {
-    try {
-        const result = await axios({
-            url: `${baseUrl}${url}`,
-            method,
-            data,
-            params,
-            timeout: 10000,
-            headers: { 'Content-Type': 'application/json' },
-        });
-        return { data: result.data };
-    } catch (axiosError) {
-        const err = axiosError as AxiosError;
-        return {
-            error: {
-                status: err.response?.status,
-                data: err.response?.data || err.message,
-            },
-        };
-    }
+export const axiosBaseQuery = ({ baseUrl }: { baseUrl: string } = { baseUrl: '' }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return async ({ url, method, data, params }: any) => {
+        try {
+            const result = await axios({
+                url: baseUrl + url,
+                method,
+                data,
+                params,
+            });
+            return { data: result.data };
+        } catch (axiosError) {
+            return { error: axiosError };
+        }
+    };
 };
