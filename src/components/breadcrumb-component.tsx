@@ -1,33 +1,17 @@
 import {
     Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
+    BreadcrumbList
 } from "@/components/ui/breadcrumb"
 
 import React from 'react'
 
-const BreadcrumbComponent = () => {
+const BreadcrumbComponent = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className="py-4 px-5 md:px-0 font-onest">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink href="#">Tops</BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>T-Shirts</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
-        </div>
+        <Breadcrumb className="py-4 px-5 md:px-0 font-onest">
+            <BreadcrumbList>
+                {children}
+            </BreadcrumbList>
+        </Breadcrumb>
     )
 }
 

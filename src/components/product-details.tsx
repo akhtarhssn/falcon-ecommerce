@@ -1,27 +1,31 @@
-'use client'
+'use client';
 
-import { ChevronDown, Heart, Share2, Star } from 'lucide-react'
-import Image from 'next/image'
-import { useGetProductsQuery } from '@/lib/api';
+import { ChevronDown, Heart, Share2, Star } from 'lucide-react';
+import Image from 'next/image';
+import { useGetProductBySlugQuery } from '@/lib/api';
 import { useDispatch } from 'react-redux';
 import { addToCart } from '@/redux/features/cart/cartSlice';
 import { Variation } from '@/types/product';
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 
-import BreadcrumbComponent from '@/components/breadcrumb-component'
-import MaxWidthContainer from '@/components/max-width-container'
-import DeliveryOptions from '@/components/product-details/delivery-option'
-import ExpandableSection from './ExpandableSection'
+import BreadcrumbComponent from '@/components/breadcrumb-component';
+import MaxWidthContainer from '@/components/max-width-container';
+import DeliveryOptions from '@/components/product-details/delivery-option';
+import ExpandableSection from './ExpandableSection';
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from './ui/breadcrumb';
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
-    const { data: product, isLoading, error } = useGetProductsQuery();
+    const { slug } = useParams(); // Get the slug from the URL
+    const { data: product, isLoading, error } = useGetProductBySlugQuery(slug as string);
     const dispatch = useDispatch();
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
     const [quantity, setQuantity] = useState(1);
 
     if (isLoading) return <div className="text-center mt-10">Loading...</div>;
-    if (error) return <div className="text-center mt-10 text-red-500">Error fetching products</div>;
-    if (!product) return <div className="text-center mt-10">No products found</div>;
+    if (error) return <div className="text-center mt-10 text-red-500">Error fetching product</div>;
+    if (!product) return <div className="text-center mt-10">No product found</div>;
 
     const effectivePrice = selectedVariation
         ? selectedVariation.discount_price || selectedVariation.regular_price
@@ -39,23 +43,36 @@ const ProductDetails = () => {
         <div className="">
             <div className="max-w-7xl mx-auto xl:p-0 px-5">
                 {/* Breadcrumbs */}
-                <BreadcrumbComponent />
+                <BreadcrumbComponent>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink href="#">Tops</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{product.name}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbComponent>
             </div>
 
             {/* Product Details Section */}
-            <section className='bg-white py-6'>
+            <section className="bg-white py-6">
                 <MaxWidthContainer className="font-onest xl:p-0">
                     <div className="mt-5 grid grid-cols-12 min-[670px]:gap-10">
                         {/* gallery */}
                         <div className="w-full flex flex-col gap-4 col-span-12 min-[670px]:col-span-6 min-[960px]:col-span-5 min-[1165px]:col-span-4">
                             {/* Big Thumbnail */}
-                            <div className='w-full'>
+                            <div className="w-full">
                                 <Image
-                                    src={effectiveImage}
+                                    src={effectiveImage || '/assets/images/fallback.png'}
                                     alt={product.name}
                                     width={900}
                                     height={900}
                                     className="w-full h-full rounded-md"
+                                    onError={(e) => (e.currentTarget.src = '/assets/images/fallback.png')}
                                 />
                             </div>
 
@@ -64,12 +81,13 @@ const ProductDetails = () => {
                                 {galleryImages.map((image, index) => (
                                     <Image
                                         key={index}
-                                        src={image}
+                                        src={image || '/assets/images/fallback.png'}
                                         alt={`${product.name} thumbnail ${index + 1}`}
                                         width={500}
                                         height={500}
                                         className="rounded cursor-pointer w-full h-full"
                                         onClick={() => setSelectedVariation(index === 0 ? null : product.variations[index - 1] || null)}
+                                        onError={(e) => (e.currentTarget.src = '/assets/images/fallback.png')}
                                     />
                                 ))}
                             </div>
@@ -89,7 +107,7 @@ const ProductDetails = () => {
                                             <Star
                                                 size={20}
                                                 key={index}
-                                                className='text-amber-400'
+                                                className="text-amber-400"
                                                 strokeWidth={0}
                                                 fill={index < Math.round(product.rating_avg) ? 'currentColor' : 'none'}
                                             />
@@ -112,18 +130,18 @@ const ProductDetails = () => {
                             <div className="mt-5">
                                 <h4 className="text-2xl font-semibold text-[#00B795]">
                                     {/* discounted price */}
-                                    <span>৳{effectivePrice}</span>
+                                    <span>৳{parseFloat(effectivePrice).toFixed(2)}</span>
                                     {/* regular price */}
                                     {(selectedVariation ? selectedVariation.discount_price : product.product_detail.discount_price) && (
                                         <sup className="text-gray-400 text-sm line-through ml-4">
-                                            ৳{selectedVariation ? selectedVariation.regular_price : product.product_detail.regular_price}
+                                            ৳{parseFloat(selectedVariation ? selectedVariation.regular_price : product.product_detail.regular_price).toFixed(2)}
                                         </sup>
                                     )}
                                 </h4>
                             </div>
                             {/* promotion */}
                             <div className="flex items-center gap-2 text-gray-500 mt-6">
-                                <span className='text-sm font-medium'>Promotion:</span>
+                                <span className="text-sm font-medium">Promotion:</span>
                                 <div className="bg-gradient-to-r from-[#FF8810] to-[#D23707] py-1.5 pl-5 pr-8 w-fit text-white text-sm font-bold flex items-center gap-2 clipped-ribbon">
                                     <span>Min. spend ৳550 </span>
                                     <ChevronDown />
@@ -133,30 +151,6 @@ const ProductDetails = () => {
                             {/* option select */}
                             <div className="flex flex-col gap-4 mt-6">
                                 {/* variation select */}
-                                {/* {product.variations.length > 0 && (
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-medium">Select Variation</span>
-                                        <select
-                                            className="mt-1 border border-gray-300 rounded-md p-2 w-full max-w-[200px]"
-                                            value={selectedVariation?.id || ''}
-                                            onChange={(e) => {
-                                                const variation = product.variations.find((v) => v.id === parseInt(e.target.value));
-                                                setSelectedVariation(variation || null);
-                                                setQuantity(1); // Reset quantity when changing variation
-                                            }}
-                                        >
-                                            <option value="">Select an option</option>
-                                            {product.variations.map((variation) => (
-                                                <option key={variation.id} value={variation.id}>
-                                                    {variation.variation_attributes
-                                                        .map((attr) => `${attr.attribute.name}: ${attr.attribute_option.attribute_value}`)
-                                                        .join(', ')}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )} */}
-                                {/* variation select */}
                                 {product.variations.length > 0 && (
                                     <div className="flex flex-col">
                                         <span className="text-sm font-medium">Select Variation</span>
@@ -164,8 +158,7 @@ const ProductDetails = () => {
                                             {product.variations.map((variation) => (
                                                 <div
                                                     key={variation.id}
-                                                    className={`size-14 rounded-md cursor-pointer outline-2 outline-transparent -outline-offset-2 hover:outline-[#00B795] transition-colors ${selectedVariation?.id === variation.id ? 'outline-[#00B795]' : ''
-                                                        }`}
+                                                    className={`size-14 rounded-md cursor-pointer outline-2 outline-transparent -outline-offset-2 hover:outline-[#00B795] transition-colors ${selectedVariation?.id === variation.id ? 'outline-[#00B795]' : ''}`}
                                                     onClick={() => {
                                                         setSelectedVariation(variation);
                                                         setQuantity(1); // Reset quantity when changing variation
@@ -222,15 +215,16 @@ const ProductDetails = () => {
                             <div className="mt-6">
                                 <button
                                     className="max-w-[310px] w-full bg-[#00B795] text-white py-3 rounded-md hover:bg-[#00A788] transition-colors font-medium cursor-pointer"
-                                    onClick={() =>
+                                    onClick={() => {
                                         dispatch(
                                             addToCart({
                                                 ...product,
                                                 selectedVariation,
                                                 quantity,
                                             })
-                                        )
-                                    }
+                                        );
+                                        toast.success('Product added to cart!');
+                                    }}
                                     disabled={effectiveStock === 0}
                                 >
                                     Add to Cart
@@ -239,14 +233,14 @@ const ProductDetails = () => {
                         </div>
 
                         {/* delivery options */}
-                        <DeliveryOptions className='col-span-12 min-[1165px]:col-span-3' />
+                        <DeliveryOptions className="col-span-12 min-[1165px]:col-span-3" />
                     </div>
                 </MaxWidthContainer>
             </section>
             <section>
                 <MaxWidthContainer className="font-onest p-0 pb-20">
                     {/* product description */}
-                    <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px] ">
+                    <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px]">
                         <h3 className="text-2xl font-medium text-gray-800">Product Description</h3>
                         <ExpandableSection withMask={true}>
                             <p className="text-gray-500 mt-4">{product.description}</p>
@@ -254,7 +248,7 @@ const ProductDetails = () => {
                     </div>
 
                     {/* product specifications */}
-                    <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px] ">
+                    <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px]">
                         <h3 className="text-2xl font-medium text-gray-800">Product Specifications</h3>
                         <ExpandableSection withMask={true}>
                             <p className="text-gray-500 mt-4 text-xl font-medium">{product.name}</p>
@@ -276,6 +270,6 @@ const ProductDetails = () => {
             </section>
         </div>
     );
-}
+};
 
-export default ProductDetails
+export default ProductDetails;

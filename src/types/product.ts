@@ -152,3 +152,19 @@ export interface Product {
     shop_product: ShopProduct;
     badges: Badge[];
 }
+
+export interface SingleProduct {
+    id: number;
+    name: string;
+    slug: string;
+    regular_price: string;
+    discount_price: string | null;
+    is_variant: boolean;
+    thumbnail: string;
+    rating_avg: number;
+    rating_count: number;
+    available_stock: number;
+    badges: Badge[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    badgeProductVariationsExclude: any[]
+}

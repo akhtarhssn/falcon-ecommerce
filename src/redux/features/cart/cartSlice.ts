@@ -8,6 +8,7 @@ interface CartItem {
     price: string;
     quantity: number;
     variation?: Variation;
+    fullProduct?: Product; // 👈 Add this
 }
 
 interface CartState {
@@ -44,18 +45,34 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
-        addToCart: (state, action: PayloadAction<Product & { selectedVariation: Variation | null; quantity: number }>) => {
-            const { id, name, thumbnail, product_detail, total_stock_qty, selectedVariation, quantity } = action.payload;
+        addToCart: (
+            state,
+            action: PayloadAction<Product & { selectedVariation: Variation | null; quantity: number }>
+        ) => {
+            const {
+                id,
+                name,
+                thumbnail,
+                product_detail,
+                total_stock_qty,
+                selectedVariation,
+                quantity,
+                ...restProductData // 👈 Grab remaining product info
+            } = action.payload;
+
             const price = selectedVariation
                 ? selectedVariation.discount_price || selectedVariation.regular_price
                 : product_detail.discount_price || product_detail.regular_price;
+
             const stock = selectedVariation ? selectedVariation.total_stock_qty : total_stock_qty;
             const image = selectedVariation ? selectedVariation.image : thumbnail;
-            if (stock < quantity) return; // Prevent adding if insufficient stock
+            if (stock < quantity) return;
+
             const itemId = selectedVariation ? `${id}-${selectedVariation.id}` : `${id}`;
             const item = state.items.find((item) => item.id === itemId);
+
             if (item) {
-                if (stock < item.quantity + quantity) return; // Prevent exceeding stock
+                if (stock < item.quantity + quantity) return;
                 item.quantity += quantity;
             } else {
                 state.items.push({
@@ -69,10 +86,20 @@ const cartSlice = createSlice({
                     price,
                     quantity,
                     variation: selectedVariation || undefined,
+                    fullProduct: {
+                        id,
+                        name,
+                        thumbnail,
+                        product_detail,
+                        total_stock_qty,
+                        ...restProductData, // 👈 Store full product details
+                    },
                 });
             }
-            saveState(state); // Save to localStorage after state change
+
+            saveState(state);
         },
+
         removeFromCart: (state, action: PayloadAction<string | number>) => {
             state.items = state.items.filter((item) => item.id !== action.payload);
             saveState(state); // Save to localStorage after state change

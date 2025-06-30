@@ -1,11 +1,6 @@
-'use client';
-
 import { Onest } from "next/font/google";
-import { Provider } from 'react-redux';
 
-import Footer from "@/components/footer";
-import Header from "@/components/header";
-import { store } from "@/redux/store";
+import ClientWrapper from "@/app/ClientWrapper";
 import "./globals.css";
 
 const onest = Onest({
@@ -28,11 +23,7 @@ export default function RootLayout({
       <body
         className={`${onest.variable} antialiased`}
       >
-        <Provider store={store}>
-          <Header />
-          {children}
-          <Footer />
-        </Provider>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );
