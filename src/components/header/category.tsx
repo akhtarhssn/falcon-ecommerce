@@ -12,21 +12,48 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { useGetCategoriesQuery } from '@/lib/api'
+import { Skeleton } from "@/components/ui/skeleton" // Import Skeleton
 
 const CategoryMenu = () => {
 
     // get the categories from the API or a static list
     const { data: categories, isLoading, error } = useGetCategoriesQuery();
 
-    if (isLoading) return <div className="text-center py-10">Loading...</div>;
+    if (isLoading) {
+        return (
+            <div className="py-3 px-5 md:px-0">
+                <MaxWidthContainer className='flex items-center justify-between'>
+                    <div className="flex items-center min-[1100px]:justify-between w-full">
+                        {/* Skeleton for the Categories button */}
+                        <Skeleton className="h-8 w-32 bg-gray-300" />
+
+                        {/* Skeleton for the main navigation links */}
+                        <div className="hidden md:flex items-center gap-4 ml-4">
+                            <Skeleton className="h-6 w-24 bg-gray-300" />
+                            <Skeleton className="h-6 w-32 bg-gray-300" />
+                            <Skeleton className="h-6 w-28 bg-gray-300" />
+                            <Skeleton className="h-6 w-24 bg-gray-300" />
+                            <Skeleton className="h-6 w-28 bg-gray-300" />
+                        </div>
+
+                        {/* Skeleton for the right-side icons/text */}
+                        <div className="hidden min-[1100px]:flex items-center gap-4">
+                            <Skeleton className="h-6 w-28 bg-gray-300" />
+                            <Skeleton className="h-6 w-28 bg-gray-300" />
+                            <Skeleton className="h-6 w-28 bg-gray-300" />
+                        </div>
+                    </div>
+                </MaxWidthContainer>
+            </div>
+        );
+    }
+
     if (error) return <div className="text-center py-10 text-red-500">Error: {error instanceof Error ? error.message : 'Failed to fetch products'}</div>;
 
     return (
         <div
             className='py-3  px-5 md:px-0'
-        // style={{ boxShadow: '0 3px 4px rgba(0, 0, 0, 0.1)' }}
         >
-
             <MaxWidthContainer className='flex items-center justify-between'>
                 <div className="flex items-center min-[1100px]:justify-between w-full">
 

@@ -6,7 +6,7 @@ import { Category } from '@/types/category';
 // Define the API service
 export const shopApi = createApi({
     reducerPath: 'shopApi',
-    baseQuery: axiosBaseQuery({ baseUrl: '/api/v1' }),
+    baseQuery: axiosBaseQuery({ baseUrl: '/api/v1' }), //for local add "/v1" after "/api"
     endpoints: (builder) => ({
         getProducts: builder.query<SingleProduct[], void>({
             query: () => ({

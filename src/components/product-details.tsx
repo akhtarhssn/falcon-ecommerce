@@ -15,6 +15,7 @@ import DeliveryOptions from '@/components/product-details/delivery-option';
 import ExpandableSection from './ExpandableSection';
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from './ui/breadcrumb';
 import toast from 'react-hot-toast';
+import { Skeleton } from './ui/skeleton';
 
 const ProductDetails = () => {
     const { slug } = useParams(); // Get the slug from the URL
@@ -23,7 +24,103 @@ const ProductDetails = () => {
     const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null);
     const [quantity, setQuantity] = useState(1);
 
-    if (isLoading) return <div className="text-center mt-10">Loading...</div>;
+
+    if (isLoading) {
+        return (
+            <div className="bg-[#F1F5F9] font-onest min-h-screen py-6">
+                <div className="max-w-7xl mx-auto xl:p-0 px-5">
+                    {/* Skeleton for Breadcrumbs */}
+                    <div className="flex items-center gap-2 mb-6">
+                        <Skeleton className="h-4 w-20 bg-gray-300" />
+                        <Skeleton className="h-4 w-4 bg-gray-300" />
+                        <Skeleton className="h-4 w-24 bg-gray-300" />
+                        <Skeleton className="h-4 w-4 bg-gray-300" />
+                        <Skeleton className="h-4 w-40 bg-gray-300" />
+                    </div>
+                </div>
+
+                <section className="bg-white py-6">
+                    <MaxWidthContainer className="font-onest xl:p-0">
+                        <div className="mt-5 grid grid-cols-12 min-[670px]:gap-10">
+                            {/* Gallery Skeleton */}
+                            <div className="w-full flex flex-col gap-4 col-span-12 min-[670px]:col-span-6 min-[960px]:col-span-5 min-[1165px]:col-span-4">
+                                <Skeleton className="w-full h-96 rounded-md bg-gray-300" /> {/* Big Thumbnail */}
+                                <div className="grid grid-cols-5 gap-2 w-full">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Skeleton key={i} className="w-full h-20 rounded-md bg-gray-300" />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Product Details Overview Skeleton */}
+                            <div className="w-full col-span-12 min-[670px]:col-span-6 min-[960px]:col-span-7 min-[1165px]:col-span-5">
+                                {/* Title */}
+                                <Skeleton className="h-8 w-3/4 mb-4 bg-gray-300" />
+                                {/* Rating and Share */}
+                                <div className="flex items-center justify-between mt-5">
+                                    <Skeleton className="h-6 w-32 bg-gray-300" />
+                                    <div className="flex gap-4">
+                                        <Skeleton className="h-8 w-8 rounded-full bg-gray-300" />
+                                        <Skeleton className="h-8 w-8 rounded-full bg-gray-300" />
+                                    </div>
+                                </div>
+                                {/* Price */}
+                                <Skeleton className="h-10 w-1/2 mt-5 bg-gray-300" />
+                                {/* Promotion */}
+                                <Skeleton className="h-8 w-56 mt-6 bg-gray-300" />
+
+                                {/* Variation Select */}
+                                <div className="flex flex-col gap-4 mt-6">
+                                    <Skeleton className="h-5 w-36 bg-gray-300" />
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {Array.from({ length: 3 }).map((_, i) => (
+                                            <Skeleton key={i} className="size-14 rounded-md bg-gray-300" />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Quantity Select */}
+                                <div className="mt-4">
+                                    <Skeleton className="h-5 w-24 mb-2 bg-gray-300" />
+                                    <Skeleton className="h-10 w-40 rounded-full bg-gray-300" />
+                                </div>
+
+                                {/* Add to Cart Button */}
+                                <Skeleton className="h-12 w-full max-w-[310px] mt-6 rounded-md bg-gray-300" />
+                            </div>
+
+                            {/* Delivery Options Skeleton */}
+                            <div className="col-span-12 min-[1165px]:col-span-3 space-y-6">
+                                {/* Assuming DeliveryOptions also has its own loading state or can be passed props for skeleton */}
+                                <Skeleton className="h-48 w-full rounded-md bg-gray-300" /> {/* Placeholder for Delivery Options box */}
+                                <Skeleton className="h-48 w-full rounded-md bg-gray-300" /> {/* Placeholder for Delivery Options box */}
+                            </div>
+                        </div>
+                    </MaxWidthContainer>
+                </section>
+
+                <section>
+                    <MaxWidthContainer className="font-onest p-0 pb-20">
+                        {/* Product Description Skeleton */}
+                        <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px]">
+                            <Skeleton className="h-8 w-60 mb-4 bg-gray-300" />
+                            <Skeleton className="h-40 w-full bg-gray-300" /> {/* Placeholder for expandable text */}
+                        </div>
+
+                        {/* Product Specifications Skeleton */}
+                        <div className="bg-white px-7 py-6 rounded-md mt-6 max-w-[950px]">
+                            <Skeleton className="h-8 w-60 mb-4 bg-gray-300" />
+                            <Skeleton className="h-40 w-full bg-gray-300" /> {/* Placeholder for expandable text */}
+                        </div>
+                    </MaxWidthContainer>
+                </section>
+            </div>
+        );
+    }
+
+    if (error) return <div className="text-center mt-10 text-red-500">Error fetching product</div>;
+    if (!product) return <div className="text-center mt-10">No product found</div>;
+
     if (error) return <div className="text-center mt-10 text-red-500">Error fetching product</div>;
     if (!product) return <div className="text-center mt-10">No product found</div>;
 
